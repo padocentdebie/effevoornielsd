@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NATO Klas - Operatie Digitaal Onderwijs</title>
+    <style>
+        :root {
+            --bg-dark: #0b1120;
+            --panel-bg: #131c31;
+            --panel-border: #1e293b;
+            --nato-blue: #0284c7;
+            --nato-accent: #38bdf8;
+            --nato-green: #22c55e;
+            --nato-red: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Tactical Header */
+        header {
+            background-color: #080d1a;
+            border-bottom: 2px solid var(--nato-blue);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nato-star {
+            width: 28px;
+            height: 28px;
+            background: var(--nato-accent);
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .user-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid var(--nato-accent);
+            color: var(--nato-accent);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Layout Grid */
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            flex: 1;
+        }
+
+        .col {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+        }
+
+        .panel-header {
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--nato-accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 8px;
+        }
+
+        /* Inleverruimte / Code Editor */
+        textarea.code-input {
+            width: 100%;
+            height: 140px;
+            background: #090e17;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 4px;
+            resize: vertical;
+        }
+
+        textarea.code-input:focus {
+            outline: none;
+            border-color: var(--nato-accent);
+        }
+
+        .btn {
+            background: var(--nato-blue);
+            color: #fff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover {
+            background: #0369a1;
+        }
+
+        /* Livefeed */
+        .feed-container {
+            max-height: 280px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .feed-item {
+            background: #0d1526;
+            border-left: 4px solid var(--nato-blue);
+            padding: 10px 14px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .feed-code {
+            background: #05080f;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+            white-space: pre-wrap;
+            max-height: 90px;
+            overflow-y: auto;
+        }
+
+        .feed-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 4px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-approve { background: #166534; color: #4ade80; }
+        .btn-review { background: #854d0e; color: #fde047; }
+
+        /* Digibord */
+        .digibord-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .color-dot.active {
+            border-color: #ffffff;
+            transform: scale(1.15);
+        }
+
+        #digibordCanvas {
+            background-color: #060b13;
+            border: 2px dashed #1e293b;
+            border-radius: 6px;
+            cursor: crosshair;
+            width: 100%;
+            height: 480px;
+            touch-action: none;
+        }
+
+        /* Inlog-Overlay */
+        #loginOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background: var(--panel-bg);
+            border: 2px solid var(--nato-blue);
+            padding: 30px;
+            border-radius: 8px;
+            width: 380px;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(2, 132, 199, 0.3);
+        }
+
+        .login-card input, .login-card select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 16px 0;
+            background: #090e17;
+            border: 1px solid #334155;
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .tip-banner {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px dashed var(--nato-accent);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            color: var(--nato-accent);
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- INLOGGEN IN DE NATOKLAS -->
+    <div id="loginOverlay">
+        <div class="login-card">
+            <div class="nato-star" style="margin: 0 auto 15px auto;"></div>
+            <h2 style="letter-spacing: 2px; margin-bottom: 6px;">NATO KLAS</h2>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">BEVEILIGD TOEGANGSPORTAAL</p>
+            
+            <label style="font-size: 0.8rem; text-align: left; display: block; color: var(--text-muted);">ROEPNAAM / CALLSIGN:</label>
+            <input type="text" id="usernameInput" placeholder="Bijv. Kadet Bravo-1 of Instructeur Wolf" value="Kadet-Alpha">
+
+            <label style="font-size: 0.8rem; text-align: left; display: block; color: var(--text-muted);">MISSIE-ROL:</label>
+            <select id="roleInput">
+                <option value="Kadet">Kadet (Leerling)</option>
+                <option value="Docent">Commandant (Docent / Instructeur)</option>
+            </select>
+
+            <button class="btn" style="width: 100%;" onclick="login()">Bevestig Identiteit & Betreed Klas</button>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE -->
+    <header>
+        <div class="brand">
+            <div class="nato-star"></div>
+            <div>
+                <h3 style="letter-spacing: 1px; font-size: 1.1rem;">HQ NATO-KLAS</h3>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">REAL-TIME TACTISCH LEERNETWERK</span>
+            </div>
+        </div>
+        <div class="user-status">
+            <span>STATUS: <strong style="color: var(--nato-green);">ONLINE</strong></span>
+            <div class="badge" id="displayCallsign">CALLSIGN: ANONIEM</div>
+        </div>
+    </header>
+
+    <main class="workspace">
+        <!-- LINKER KOLOM: Inleverruimte & Livefeed -->
+        <div class="col">
+            <!-- INLEVERRUIMTE -->
+            <section class="panel">
+                <div class="panel-header">
+                    <span>1. Inleverruimte HTML-Code</span>
+                    <span style="font-size: 0.75rem; color: var(--nato-accent);">OPDRACHT: NAKIJKEN</span>
+                </div>
+                <div class="tip-banner">
+                    Voer hier de geschreven HTML-code of missierapportage in om naar de livefeed te sturen.
+                </div>
+                <textarea class="code-input" id="codeInput" placeholder="<!-- Typ hier je HTML code voor controle -->&#10;<div class='nato-missie'>&#10;  <h3>Status: Beveiligd</h3>&#10;  <p>Alle doelstellingen zijn bereikt.</p>&#10;</div>"></textarea>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">Wordt realtime gedeeld met de klas</span>
+                    <button class="btn" onclick="submitWork()">Inleveren op Digibord</button>
+                </div>
+            </section>
+
+            <!-- LIVEFEED -->
+            <section class="panel" style="flex: 1;">
+                <div class="panel-header">
+                    <span>2. Livefeed Ingeleverde Taken</span>
+                    <span id="feedCount" class="badge">0 BERICHTEN</span>
+                </div>
+                <div class="feed-container" id="feedContainer">
+                    <!-- Berichten verschijnen hier automatisch -->
+                </div>
+            </section>
+        </div>
+
+        <!-- RECHTER KOLOM: Coöperatief Real-time Digibord -->
+        <div class="col">
+            <section class="panel" style="height: 100%;">
+                <div class="panel-header">
+                    <span>3. Coöperatief Real-Time Digibord</span>
+                    <span style="font-size: 0.75rem; color: var(--nato-green);">● Gesynchroniseerd</span>
+                </div>
+                <div class="digibord-toolbar">
+                    <span style="font-size: 0.8rem; color: var(--text-muted); margin-right: 5px;">Kleur:</span>
+                    <div class="color-dot active" style="background: #38bdf8;" onclick="setColor('#38bdf8', this)"></div>
+                    <div class="color-dot" style="background: #22c55e;" onclick="setColor('#22c55e', this)"></div>
+                    <div class="color-dot" style="background: #f59e0b;" onclick="setColor('#f59e0b', this)"></div>
+                    <div class="color-dot" style="background: #ef4444;" onclick="setColor('#ef4444', this)"></div>
+                    <div class="color-dot" style="background: #ffffff;" onclick="setColor('#ffffff', this)"></div>
+                    
+                    <button class="btn-small" style="margin-left: auto; background: #334155; color: white;" onclick="clearDigibord(true)">Wissen (Klas)</button>
+                </div>
+
+                <div class="tip-banner" style="margin-bottom: 8px;">
+                    💡 <strong>Test tip:</strong> Open ditzelfde bestand in een <em>tweede venster of tabblad</em>. Tekeningen en inzendingen verschijnen overal gelijktijdig!
+                </div>
+
+                <canvas id="digibordCanvas"></canvas>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Real-time synchronisatie via BroadcastChannel API (werkt tabblad-naar-tabblad zonder server)
+        const natoChannel = new BroadcastChannel('nato_realtime_class_v1');
+
+        let currentUser = {
+            callsign: "Onbekend",
+            role: "Kadet"
+        };
+
+        // 1. Inloggen
+        function login() {
+            const nameInput = document.getElementById('usernameInput').value.trim();
+            const roleInput = document.getElementById('roleInput').value;
+
+            if (nameInput) {
+                currentUser.callsign = nameInput;
+                currentUser.role = roleInput;
+                document.getElementById('displayCallsign').innerText = `${currentUser.role.toUpperCase()}: ${currentUser.callsign}`;
+                document.getElementById('loginOverlay').style.display = 'none';
+            }
+        }
+
+        // 2. Inleverruimte & Livefeed
+        function submitWork() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (!code) {
+                alert("Voer eerst HTML code of tekst in om in te leveren.");
+                return;
+            }
+
+            const submission = {
+                id: 'SUB-' + Math.floor(Math.random() * 10000),
+                sender: currentUser.callsign,
+                role: currentUser.role,
+                timestamp: new Date().toLocaleTimeString(),
+                content: code,
+                status: 'In behandeling'
+            };
+
+            // Voeg lokaal toe en broadcast naar andere vensters
+            addFeedItem(submission);
+            natoChannel.postMessage({ type: 'NEW_SUBMISSION', payload: submission });
+
+            // Reset veld
+            document.getElementById('codeInput').value = '';
+        }
+
+        function addFeedItem(item) {
+            const feedContainer = document.getElementById('feedContainer');
+            
+            const card = document.createElement('div');
+            card.className = 'feed-item';
+            card.id = item.id;
+
+            card.innerHTML = `
+                <div class="feed-header">
+                    <span><strong>${escapeHtml(item.sender)}</strong> [${escapeHtml(item.role)}]</span>
+                    <span>${item.timestamp}</span>
+                </div>
+                <div class="feed-code">${escapeHtml(item.content)}</div>
+                <div class="feed-actions">
+                    <span style="font-size: 0.75rem; margin-right: auto; align-self: center;" id="status-${item.id}">
+                        Status: <em>${item.status}</em>
+                    </span>
+                    <button class="btn-small btn-review" onclick="updateStatus('${item.id}', 'Revisie Nodig')">Revisie</button>
+                    <button class="btn-small btn-approve" onclick="updateStatus('${item.id}', 'Goedgekeurd')">Goedkeuren</button>
+                </div>
+            `;
+
+            feedContainer.prepend(card);
+            updateBadgeCount();
+        }
+
+        function updateStatus(id, newStatus) {
+            const statusEl = document.getElementById(`status-${id}`);
+            if (statusEl) {
+                statusEl.innerHTML = `Status: <strong>${newStatus}</strong>`;
+            }
+            // Broadcast statusverandering naar iedereen
+            natoChannel.postMessage({ type: 'STATUS_UPDATE', payload: { id, status: newStatus } });
+        }
+
+        function updateBadgeCount() {
+            const count = document.getElementById('feedContainer').children.length;
+            document.getElementById('feedCount').innerText = `${count} INZENDINGEN`;
+        }
+
+        function escapeHtml(string) {
+            return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // 3. Real-time Coöperatief Digibord Canvas
+        const canvas = document.getElementById('digibordCanvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let currentColor = '#38bdf8';
+        let prevPos = { x: 0, y: 0 };
+
+        // Canvas resolutie afstemmen op CSS formaat
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 32;
+            canvas.height = 480;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 3;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 100);
+
+        function setColor(color, element) {
+            currentColor = color;
+            document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        function drawLine(from, to, color, broadcast = true) {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 3;
+            ctx.moveTo(from.x, from.y);
+            ctx.lineTo(to.x, to.y);
+            ctx.stroke();
+
+            if (broadcast) {
+                natoChannel.postMessage({
+                    type: 'CANVAS_DRAW',
+                    payload: { from, to, color }
+                });
+            }
+        }
+
+        function clearDigibord(broadcast = true) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (broadcast) {
+                natoChannel.postMessage({ type: 'CANVAS_CLEAR' });
+            }
+        }
+
+        // Muis & Touch Events
+        function startDrawing(e) {
+            isDrawing = true;
+            prevPos = getMousePos(e);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const currentPos = getMousePos(e);
+            drawLine(prevPos, currentPos, currentColor, true);
+            prevPos = currentPos;
+            e.preventDefault();
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        window.addEventListener('touchend', stopDrawing);
+
+        // Luisteren naar binnenkomende berichten via de Real-time Channel
+        natoChannel.onmessage = (event) => {
+            const { type, payload } = event.data;
+
+            if (type === 'CANVAS_DRAW') {
+                drawLine(payload.from, payload.to, payload.color, false);
+            } else if (type === 'CANVAS_CLEAR') {
+                clearDigibord(false);
+            } else if (type === 'NEW_SUBMISSION') {
+                addFeedItem(payload);
+            } else if (type === 'STATUS_UPDATE') {
+                const statusEl = document.getElementById(`status-${payload.id}`);
+                if (statusEl) {
+                    statusEl.innerHTML = `Status: <strong>${payload.status}</strong>`;
+                }
+            }
+        };
+    </script>
+</body>
+</html>
